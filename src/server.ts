@@ -4,11 +4,11 @@ import mongoose from 'mongoose';
 
 async function main() {
   try {
-    await mongoose.connect(config.mongo_url as string);
+    await mongoose.connect(config.MONGO_URL as string);
     console.log('Connected to MongoDB');
 
-    app.listen(config.port, () => {
-      console.log(`Revive Mart app listening on port ${config.port}`);
+    app.listen(config.PORT, () => {
+      console.log(`Revive Mart app listening on port ${config.PORT}`);
     });
   } catch (err) {
     // Log any errors related to database connection

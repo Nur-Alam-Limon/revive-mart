@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { registerUser, loginUser, updateUserProfile, getUserByIdService, updateUserByIdService, deleteUserByIdService } from './auth.service';
+import { registerUser, loginUser, updateUserProfile, getUserByIdService, updateUserByIdService, deleteUserByIdService, getAllUserService } from './auth.service';
 
 // Register User
 export const register = async (req: Request, res: Response) => {
@@ -41,6 +41,17 @@ export const getUserById = async (req: Request, res: Response) => {
   try {
     const user = await getUserByIdService(req.params.id);
     res.status(200).json({ success: true, user });
+  } catch (error: unknown) {
+    const err = error as Error;
+    res.status(404).json({ success: false, message: err.message });
+  }
+};
+
+// Get All Users (Admin Only)
+export const getAllUsers = async (req: Request, res: Response) => {
+  try {
+    const users = await getAllUserService();
+    res.status(200).json({ success: true, users });
   } catch (error: unknown) {
     const err = error as Error;
     res.status(404).json({ success: false, message: err.message });

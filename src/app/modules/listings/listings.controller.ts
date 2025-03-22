@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { createListing, getAllListings, getListingById, updateListingById, deleteListingById } from './listings.service';
+import { createListing, getAllListings, getListingById, updateListingById, deleteListingById, getAllListingsUser } from './listings.service';
 
 export const addListing = async (req: Request, res: Response) => {
   try {
@@ -13,6 +13,15 @@ export const addListing = async (req: Request, res: Response) => {
 export const getListings = async (_req: Request, res: Response) => {
   try {
     const listings = await getAllListings();
+    res.status(200).json({ success: true, listings });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to retrieve listings' });
+  }
+};
+
+export const getListingsUser = async (_req: Request, res: Response) => {
+  try {
+    const listings = await getAllListingsUser(_req.params.mail);
     res.status(200).json({ success: true, listings });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Failed to retrieve listings' });

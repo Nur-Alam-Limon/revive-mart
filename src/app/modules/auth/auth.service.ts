@@ -1,9 +1,11 @@
 import { UserModel } from './auth.model';
-import { RegisterPayload, LoginPayload, UpdateProfilePayload } from './auth.interface';
+import { RegisterPayload, UpdateProfilePayload } from './auth.interface';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import mongoose from 'mongoose';
+import config from '../../config';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
+const JWT_SECRET = config.JWT_SECRET || 'verysecret';
 const JWT_EXPIRES_IN = '72h';
 
 export const registerUser = async (payload: RegisterPayload) => {
@@ -13,7 +15,12 @@ export const registerUser = async (payload: RegisterPayload) => {
   if (existingUser) throw new Error('User already exists');
 
   const hashedPassword = await bcrypt.hash(password, 10);
-  const user = await UserModel.create({ name, email, password: hashedPassword, role });
+  const user = await UserModel.create({
+    name,
+    email,
+    password: hashedPassword,
+    role,
+  });
 
   return user;
 };
@@ -25,18 +32,51 @@ export const loginUser = async (email: string, password: string) => {
   const isPasswordValid = await bcrypt.compare(password, user.password);
   if (!isPasswordValid) throw new Error('Invalid credentials');
 
-  const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
-  
+  const token = jwt.sign({ id: user._id }, JWT_SECRET, {
+    expiresIn: JWT_EXPIRES_IN,
+  });
+
   return { token, user };
 };
 
-export const updateUserProfile = async (userId: string, payload: UpdateProfilePayload) => {
+export const updateUserProfile = async (
+  userId: string,
+  payload: UpdateProfilePayload,
+) => {
+  // Hash password if provided
   if (payload.password) {
     payload.password = await bcrypt.hash(payload.password, 10);
   }
 
-  const user = await UserModel.findByIdAndUpdate(userId, payload, { new: true, runValidators: true });
-  if (!user) throw new Error('User not found or update failed');
+  let user;
+
+  try {
+    // Check if userId is a valid ObjectId
+    if (mongoose.Types.ObjectId.isValid(userId)) {
+      // If valid, update the existing user
+      user = await UserModel.findOneAndUpdate({ _id: userId }, payload, {
+        new: true,
+        runValidators: true,
+      });
+    }
+  } catch (err) {
+    console.log('ewer', err);
+  }
+  try {
+    if (!user) {
+      // If user is not found or userId is not valid, create a new user
+      user = new UserModel({
+        ...payload,
+        _id: new mongoose.Types.ObjectId(), // Ensure a new valid ObjectId
+      });
+
+      // Save the newly created user
+      await user.save();
+    }
+  } catch (err) {
+    console.log('esawer', err);
+  }
+
   return user;
 };
 
@@ -46,12 +86,24 @@ export const getUserByIdService = async (id: string) => {
   return user;
 };
 
-export const updateUserByIdService = async (id: string, payload: UpdateProfilePayload) => {
+export const getAllUserService = async () => {
+  const users = await UserModel.find();
+  if (!users) throw new Error('Users not found');
+  return users;
+};
+
+export const updateUserByIdService = async (
+  id: string,
+  payload: UpdateProfilePayload,
+) => {
   if (payload.password) {
     payload.password = await bcrypt.hash(payload.password, 10);
   }
 
-  const user = await UserModel.findByIdAndUpdate(id, payload, { new: true, runValidators: true });
+  const user = await UserModel.findByIdAndUpdate(id, payload, {
+    new: true,
+    runValidators: true,
+  });
   if (!user) throw new Error('User not found or update failed');
   return user;
 };

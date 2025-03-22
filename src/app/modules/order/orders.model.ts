@@ -4,7 +4,7 @@ interface ITransaction extends Document {
   buyerID: mongoose.Types.ObjectId;
   sellerID: mongoose.Types.ObjectId;
   itemID: mongoose.Types.ObjectId;
-  status: 'pending' | 'completed';
+  status: 'pending' | 'completed' | 'cancelled' | 'failed';
   timestamp: Date;
 }
 
@@ -12,7 +12,7 @@ const transactionSchema = new Schema<ITransaction>({
   buyerID: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   sellerID: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   itemID: { type: Schema.Types.ObjectId, ref: 'Listing', required: true },
-  status: { type: String, enum: ['pending', 'completed'], default: 'pending' },
+  status: { type: String, enum: ['pending' , 'completed' , 'cancelled' , 'failed'], default: 'pending' },
   timestamp: { type: Date, default: Date.now }
 });
 

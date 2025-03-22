@@ -1,4 +1,4 @@
-import { ITransactionCreate, ITransactionUpdate } from './orders.interface';
+
 import { Transaction } from './orders.model';
 import { Types } from 'mongoose';
 

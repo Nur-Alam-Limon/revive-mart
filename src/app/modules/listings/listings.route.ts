@@ -1,13 +1,15 @@
 import { Router } from 'express';
 import { 
   addListing, getListings, getListing, 
-  updateListing, deleteListing 
+  updateListing, deleteListing, 
+  getListingsUser
 } from './listings.controller';
 import { verifyToken, authorizeRoles } from '../auth/auth.middleware';
 
 const router = Router();
 
 // Public routes
+router.get('/:mail', getListingsUser);  // Fetch user available listings
 router.get('/', getListings);  // Fetch all available listings
 router.get('/:id', getListing);  // Fetch a specific listing by ID
 

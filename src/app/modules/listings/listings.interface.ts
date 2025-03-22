@@ -5,7 +5,8 @@ export interface IListing extends Document {
   description: string;
   price: number;
   condition: 'New' | 'Used';
-  images: string[];
+  image: string;
   userId: string;
   status: 'available' | 'sold';
+  email: string;
 }

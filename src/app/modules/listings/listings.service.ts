@@ -10,6 +10,10 @@ export const getAllListings = async () => {
   return await ListingModel.find({ status: 'available' });
 };
 
+export const getAllListingsUser = async (email: string) => {
+  return await ListingModel.find({ status: 'available', email });
+};
+
 export const getListingById = async (id: string) => {
   return await ListingModel.findById(id);
 };

@@ -14,6 +14,9 @@ export interface UpdateProfilePayload {
   name?: string;
   email?: string;
   password?: string;
+  phone?: string; // Optional field
+  address?: string; 
+  profilePic?: string; 
 }
 
 export interface IUser {
@@ -22,4 +25,7 @@ export interface IUser {
   email: string;
   password: string;
   role: 'user' | 'admin';
+  phone?: string; // Optional field
+  address?: string; 
+  profilePic?: string; 
 }

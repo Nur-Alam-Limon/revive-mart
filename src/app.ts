@@ -13,7 +13,7 @@ app.use(express.json());
 // Enable CORS (Cross-Origin Resource Sharing) for all origins
 app.use(cors({
   origin: '*', 
-  methods: 'GET,POST,PUT', // Allow these methods
+  methods: 'GET,POST,PUT,DELETE', // Allow these methods
   allowedHeaders: 'Content-Type,Authorization', // Allow these headers
 }));
 
@@ -30,7 +30,7 @@ app.get('/', (req: Request, res: Response) => {
 
 // product routes with the path '/api/listings'
 app.use('/api/listings', listingRoutes);
-
+//Auth routes
 app.use('/api/auth', authRoutes);
 
 // order routes with the path '/api/orders'
