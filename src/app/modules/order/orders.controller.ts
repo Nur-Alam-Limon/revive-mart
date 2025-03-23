@@ -67,9 +67,15 @@ export const updateTransactionStatus = async (req: Request<{ id: string }, {}, I
 
 export const initiatePaymentSuccess = async (req: Request, res: Response) => {
   try {
-    const { tran_id } = req.body;
+    const tran_id = req.params.id;
+    console.log('transaction ID', req.body, req.params);
 
-    // Find and update all transactions with the same tran_id to completed
+    if (!tran_id) {
+      res.status(400).json({ success: false, message: "tran_id is required" });
+      return;
+    }
+
+    // Find all transactions related to the provided tran_id
     const updatedTransactions = await Transaction.updateMany(
       { tran_id },
       { status: "completed" }
@@ -77,14 +83,42 @@ export const initiatePaymentSuccess = async (req: Request, res: Response) => {
 
     if (updatedTransactions.matchedCount === 0) {
       res.status(404).json({ success: false, message: "No transactions found with the provided tran_id" });
+      return;
     }
 
-    res.status(200).json({ success: true, message: "Payment successful", transactions: updatedTransactions });
+    // Fetch all transactions to get their associated itemIDs
+    const transactions = await Transaction.find({ tran_id });
+
+    if (transactions.length === 0) {
+      res.status(404).json({ success: false, message: "No transactions found for the provided tran_id" });
+      return;
+    }
+
+    // Extract all related itemIDs from the transactions
+    const itemIDs = transactions.map(transaction => transaction.itemID);
+
+    // Update all listings associated with this transaction to "sold"
+    const listingUpdate = await ListingModel.updateMany(
+      { _id: { $in: itemIDs } },
+      { status: "sold" }
+    );
+
+    if (listingUpdate.matchedCount === 0) {
+      res.status(404).json({ success: false, message: "Failed to update listing statuses to sold" });
+      return;
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Payment successful and all listing statuses updated to sold",
+      transactions: transactions,
+    });
   } catch (error) {
     console.error("Payment Success Handling Error:", error);
     res.status(500).json({ success: false, message: "Server Error while processing payment success" });
   }
 };
+
 
 export const initiatePaymentFailure = async (req: Request, res: Response) => {
   try {
@@ -131,8 +165,9 @@ export const initiatePaymentCancel = async (req: Request, res: Response) => {
 export const initiatePayment = async (req: Request, res: Response) => {
   const { total_amount, currency, tran_id, success_url, fail_url, cancel_url, customer, itemIDs } = req.body;
 
-  const store_id = process.env.SSL_STORE_ID || "nuralam098";
-  const store_passwd = process.env.SSL_STORE_PASSWORD || "nlimon";
+  const store_id = process.env.SSL_STORE_ID || "";
+  const store_passwd = process.env.SSL_STORE_PASSWORD || "";
+  const fr_url = process.env.FRONTEND_URL || ""
   const is_live = false;
 
   const paymentData = {
@@ -142,9 +177,9 @@ export const initiatePayment = async (req: Request, res: Response) => {
     success_url,
     fail_url,
     cancel_url,
-    ipn_url: "http://localhost:3000/ipn",
+    ipn_url: `${fr_url}/ipn`,
     shipping_method: "Courier",
-    product_name: "Products",
+    product_name: "Used Product",
     product_category: "Various",
     product_profile: "general",
     cus_name: customer.name,
@@ -213,7 +248,19 @@ export const getPurchaseHistory = async (req: Request, res: Response) => {
   const { buyerId } = req.params;
 
   try {
-    const transactions = await Transaction.find({ buyerID: buyerId });
+    const transactionsData = await Transaction.find({ buyerID: buyerId });
+    // Use Promise.all to fetch all related listings
+    const transactions = await Promise.all(
+      transactionsData.map(async (transaction) => {
+        const listing = await ListingModel.findById(transaction.itemID);
+
+        return {
+          transaction,
+          listing,
+        };
+      })
+    );
+    console.log("Transaction", transactions)
     res.status(200).json({ success: true, transactions });
   } catch (error) {
     console.error('Error fetching purchase history:', error);
@@ -226,7 +273,20 @@ export const getSellHistory = async (req: Request, res: Response) => {
   const { sellerId } = req.params;
 
   try {
-    const transactions = await Transaction.find({ sellerID: sellerId });
+    const transactionsData = await Transaction.find({ sellerID: sellerId });
+
+    // Fetch listings related to the transactions
+    const transactions = await Promise.all(
+      transactionsData.map(async (transaction) => {
+        const listing = await ListingModel.findById(transaction.itemID);
+
+        return {
+          transaction,
+          listing,
+        };
+      })
+    );
+
     res.status(200).json({ success: true, transactions });
   } catch (error) {
     console.error('Error fetching sell history:', error);

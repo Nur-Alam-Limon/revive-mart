@@ -7,11 +7,11 @@ export const createListing = async (listingData: IListing) => {
 };
 
 export const getAllListings = async () => {
-  return await ListingModel.find({ status: 'available' });
+  return await ListingModel.find({});
 };
 
 export const getAllListingsUser = async (email: string) => {
-  return await ListingModel.find({ status: 'available', email });
+  return await ListingModel.find({ email });
 };
 
 export const getListingById = async (id: string) => {

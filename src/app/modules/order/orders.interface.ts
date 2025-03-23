@@ -4,6 +4,7 @@ export interface ITransactionCreate {
   buyerID: string;  // ObjectId as string
   sellerID: string; // ObjectId as string
   itemID: string;   // ObjectId as string
+  tran_id: string;
   status: 'pending' | 'completed' | 'cancelled' | 'failed';
 }
 

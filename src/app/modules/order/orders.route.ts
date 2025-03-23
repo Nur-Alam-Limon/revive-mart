@@ -21,7 +21,7 @@ router.get('/transactions/sell/:sellerId',verifyToken, getSellHistory);
 // Update transaction status (mark as completed or pending)
 router.put('/:id', verifyToken, authorizeRoles('admin'), updateTransactionStatus);
 router.post("/initiate-payment", verifyToken, initiatePayment);
-router.post("/ssl/success", initiatePaymentSuccess);
+router.post("/ssl/success/:id", initiatePaymentSuccess);
 router.post('/ssl/fail', initiatePaymentFailure);
 router.post('/ssl/cancel', initiatePaymentCancel);
 
