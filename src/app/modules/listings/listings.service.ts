@@ -7,7 +7,7 @@ export const createListing = async (listingData: IListing) => {
 };
 
 export const getAllListings = async () => {
-  return await ListingModel.find({});
+  return await ListingModel.find();
 };
 
 export const getAllListingsUser = async (email: string) => {

@@ -1,17 +1,16 @@
 
-# SecondHand 🛒 (Marketplace for Buying & Selling Used Items)
+# Revive Mart 🛒 - (SecondHand Marketplace for Buying & Selling Used Items)
 
 This is the backend server for the **SecondHand Marketplace Web Application**, where users can buy and sell used items. It is built using **TypeScript**, **Express.js**, and **MongoDB**. The platform allows users to post listings for used items, browse available products, and communicate securely with sellers.
 
-**Live Link** - [SecondHand Marketplace](https://secondhand-marketplace-backend.vercel.app/)
+**Live Link** - https://revive-mart-backend.vercel.app
 
 ## Features
 
-- **User Authentication**: Custom login system using email/phone number and password. JWT for secure authentication and password hashing with bcrypt.
+- **User Authentication**: Custom login system using email and password. JWT for secure authentication and password hashing with bcrypt.
 - **User Dashboard**: Users can manage their listings, view purchase and sales history, and manage their profile.
 - **Listings & Search**: Users can create, update, and delete listings. Search and filter functionality based on categories, price, and condition.
-- **Messaging System**: Optional direct communication between buyers and sellers.
-- **Admin Panel**: Admin features for managing users and listings (optional).
+- **Admin Panel**: Admin features for managing users and listings.
 - **Transactions & Order Management**: Users can track and manage purchases and sales.
 
 ## API Routes
@@ -223,7 +222,6 @@ This is the backend server for the **SecondHand Marketplace Web Application**, w
 - **Database**: MongoDB (Mongoose)
 - **Language**: TypeScript
 - **Authentication**: JWT, bcrypt
-- **Messaging System**: WebSockets (Optional)
 
 ---
 
